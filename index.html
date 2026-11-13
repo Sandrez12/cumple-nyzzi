@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Feliz cumple 19, Nyzzi ♥</title>
+  <meta name="description" content="Un regalo hecho línea por línea para tu cumpleaños 19. Sube el volumen y presiona START ♥">
+  <meta name="theme-color" content="#1a1033">
+  <!-- privado: que no aparezca en buscadores -->
+  <meta name="robots" content="noindex, nofollow, noimageindex">
+
+  <!-- Vista previa al compartir el link (WhatsApp, Instagram, Messenger, etc.) -->
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="es_MX">
+  <meta property="og:site_name" content="Para Nyzzi">
+  <meta property="og:url" content="https://sandrez12.github.io/cumple-nyzzi/">
+  <meta property="og:title" content="Nyzzi, tienes un regalo 🎁">
+  <meta property="og:description" content="Un regalo hecho línea por línea para tu cumpleaños 19. Sube el volumen y presiona START ♥">
+  <meta property="og:image" content="https://sandrez12.github.io/cumple-nyzzi/assets/og-imagen.png?v=1">
+  <meta property="og:image:secure_url" content="https://sandrez12.github.io/cumple-nyzzi/assets/og-imagen.png?v=1">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Corazón pixel art con el texto Feliz cumple 19 Nyzzi y un botón Press Start">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Nyzzi, tienes un regalo 🎁">
+  <meta name="twitter:description" content="Un regalo hecho línea por línea para tu cumpleaños 19 ♥">
+  <meta name="twitter:image" content="https://sandrez12.github.io/cumple-nyzzi/assets/og-imagen.png?v=1">
+
+  <!-- Íconos: pestaña del navegador y "agregar a pantalla de inicio" -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath fill='%23ff2e63' d='M1 0h2v1H1zM4 0h2v1H4zM0 1h7v3H0zM1 4h5v1H1zM2 5h3v1H2zM3 6h1v1H3z'/%3E%3Cpath fill='%23ff5fa2' d='M1 1h2v3H1zM4 1h2v3H4zM3 2h1v3H3zM2 4h3v1H2z'/%3E%3Cpath fill='%23fff4f8' d='M1 2h1v1H1z'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="assets/icono-180.png">
+  <meta name="apple-mobile-web-app-title" content="Para Nyzzi">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=4">
+</head>
+<body>
+  <div id="estrellas" aria-hidden="true"></div>
+
+  <!-- 1. Cuenta regresiva (antes de la fecha de desbloqueo) -->
+  <section id="pantalla-bloqueo" class="pantalla">
+    <h1 class="titulo-pixel">Algo especial se desbloquea en...</h1>
+    <div id="cuenta-regresiva" class="cuenta"></div>
+    <p class="subtexto">Vuelve cuando llegue a cero</p>
+  </section>
+
+  <!-- 2. Pantalla de inicio -->
+  <section id="pantalla-inicio" class="pantalla">
+    <h1 class="titulo-pixel" id="titulo-inicio"></h1>
+    <div class="sprite-corazon grande" aria-hidden="true"></div>
+    <button id="btn-start" class="btn-pixel parpadeo">PRESS START</button>
+    <p class="subtexto">Sube el volumen</p>
+  </section>
+
+  <!-- 3. Mini juego -->
+  <section id="pantalla-juego" class="pantalla">
+    <div id="hud-juego" class="hud"></div>
+    <canvas id="juego"></canvas>
+  </section>
+
+  <!-- 4. Menú principal tipo RPG -->
+  <section id="pantalla-menu" class="pantalla">
+    <h1 class="titulo-pixel" id="titulo-menu"></h1>
+    <nav class="menu-rpg" id="menu-rpg">
+      <button class="btn-menu" data-seccion="sec-recuerdos">Nuestros recuerdos</button>
+      <button class="btn-menu" data-seccion="sec-razones">19 razones</button>
+      <button class="btn-menu" data-seccion="sec-distancia">La distancia</button>
+      <button class="btn-menu" data-seccion="sec-media">Nuestra galería</button>
+      <button class="btn-menu" data-seccion="sec-canciones">Nuestras canciones</button>
+      <button class="btn-menu" data-seccion="sec-cupones">Vales canjeables</button>
+      <button class="btn-menu especial" data-seccion="sec-carta">Tu pastel y mi carta</button>
+    </nav>
+  </section>
+
+  <!-- 5. Secciones -->
+  <section id="sec-recuerdos" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-razones" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-distancia" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-media" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-canciones" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-cupones" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+  <section id="sec-carta" class="pantalla seccion"><div class="contenido-seccion"></div></section>
+
+  <!-- Reproductor de la canción -->
+  <audio id="musica" loop preload="auto"></audio>
+  <button id="btn-musica" class="btn-musica" aria-label="Música" hidden>♪</button>
+
+  <script src="contenido.js?v=4"></script>
+  <script src="game.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+</body>
+</html>

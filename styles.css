@@ -1,0 +1,1348 @@
+/* =====================================================================
+   FELIZ CUMPLE 19 — styles.css
+   Web-regalo retro pixel art · vanilla · mobile-first · sin build
+   ---------------------------------------------------------------------
+   Paleta: fondo #1a1033 · rosa #ff5fa2 · rojo #ff2e63 · amarillo #ffd166
+           blanco #fff4f8 · violeta #7b5cff · violeta oscuro #2d1b5a
+   Tipos : 'Press Start 2P' (títulos y botones) · 'VT323' (textos largos)
+   ====================================================================== */
+
+/* ---------- Variables y reset ---------- */
+:root {
+  --fondo: #1a1033;
+  --rosa: #ff5fa2;
+  --rojo: #ff2e63;
+  --amarillo: #ffd166;
+  --blanco: #fff4f8;
+  --violeta: #7b5cff;
+  --violeta-oscuro: #2d1b5a;
+  --morado-suave: #241547;
+  --texto-suave: #cdbfe8;
+  --tinta: #241547;               /* "tinta" para textos sobre claro */
+  --fuente-pixel: 'Press Start 2P', 'Courier New', monospace;
+  --fuente-texto: 'VT323', 'Courier New', monospace;
+  --gutter: 16px;                 /* margen lateral en móvil */
+  --ancho-max: 520px;             /* ancho del contenido en escritorio */
+  --borde: 4px;                   /* tamaño del "píxel" de los bordes */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { min-height: 100%; }
+
+body {
+  background: var(--fondo);
+  color: var(--blanco);
+  font-family: var(--fuente-texto);
+  font-size: 22px;               /* texto largo legible (VT323) */
+  line-height: 1.35;
+  overflow-x: hidden;            /* nunca scroll horizontal */
+  min-height: 100dvh;
+}
+
+img, video, canvas, svg { display: block; max-width: 100%; image-rendering: pixelated; }
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:disabled { cursor: default; }
+
+:focus-visible { outline: 3px dashed var(--amarillo); outline-offset: 3px; }
+
+::selection { background: var(--rosa); color: var(--fondo); }
+
+/* ---------- Tipografías utilitarias ---------- */
+.titulo-pixel {
+  font-family: var(--fuente-pixel);
+  font-size: 13px;               /* en móvil 10-14px */
+  line-height: 1.7;
+  color: var(--blanco);
+  text-align: center;
+  text-shadow: 2px 2px 0 var(--violeta-oscuro);
+}
+
+.subtexto { font-size: 20px; color: var(--rosa); text-align: center; margin-top: 14px; }
+
+.titulo-seccion {
+  font-family: var(--fuente-pixel);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--amarillo);
+  text-align: center;
+  margin: 6px 0 18px;
+  text-shadow: 2px 2px 0 var(--violeta-oscuro);
+  text-transform: uppercase;
+}
+
+/* ---------- Cielo de estrellas (detrás de todo) ---------- */
+#estrellas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -8%, var(--violeta-oscuro) 0%, transparent 70%),
+    var(--fondo);
+}
+
+.estrella {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: var(--blanco);
+  animation: titilar 2.6s steps(3, jump-none) infinite;
+}
+.estrella.mediana { width: 2px; height: 2px; }
+.estrella.tono-rosa { background: var(--rosa); }
+.estrella.tono-amarillo { background: var(--amarillo); }
+.estrella.tono-violeta { background: var(--violeta); }
+
+@keyframes titilar { 0%, 100% { opacity: .12; } 50% { opacity: 1; } }
+
+/* ---------- Pantallas (solo una .activa a la vez) ---------- */
+.pantalla { display: none; }
+
+.pantalla.activa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 1;                    /* por encima de #estrellas */
+  width: 100%;
+  max-width: var(--ancho-max);   /* en escritorio el contenido se centra */
+  margin: 0 auto;
+  min-height: 100dvh;
+  padding: 26px var(--gutter) 44px;
+  animation: aparecer .45s steps(6);   /* transición fade/pixel */
+}
+
+@keyframes aparecer {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ---------- Mini juego: ocupa TODO el viewport, sin márgenes ---------- */
+#pantalla-juego.activa {
+  display: block;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--fondo);
+  animation: aparecer .3s steps(5);
+}
+
+#pantalla-juego #juego {
+  display: block;
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  max-width: none;
+  touch-action: none;             /* el juego gestiona sus propios toques */
+  background: var(--fondo);
+}
+
+/* HUD del juego (lo rellena game.js, aquí sólo estética) */
+.hud {
+  position: absolute;
+  top: 8px;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  padding: 0 var(--gutter);
+  font-family: var(--fuente-pixel);
+  font-size: 10px;
+  color: var(--amarillo);
+  text-shadow: 2px 2px 0 var(--violeta-oscuro);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ---------- Botones pixel con borde escalonado (box-shadow en pasos) ---------- */
+.btn-pixel {
+  position: relative;
+  display: inline-block;
+  font-family: var(--fuente-pixel);
+  font-size: 11px;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--fondo);
+  background: var(--rosa);
+  padding: 13px 18px 15px;
+  image-rendering: pixelated;
+  /* contorno escalonado + base 3D: esquinas "cortadas" tipo pixel */
+  box-shadow:
+    0 calc(var(--borde) * -1) 0 var(--violeta-oscuro),
+    calc(var(--borde) * -1) 0 0 var(--violeta-oscuro),
+    var(--borde) 0 0 var(--violeta-oscuro),
+    0 calc(var(--borde) * 2) 0 var(--violeta-oscuro),
+    inset 0 3px 0 rgba(255, 255, 255, .35),
+    inset 0 -4px 0 rgba(0, 0, 0, .22);
+  transition: transform .06s steps(2), box-shadow .06s steps(2);
+}
+
+/* efecto al presionar: se "hunde" y la base se encoge */
+.btn-pixel:active,
+.btn-pixel.pulsado {
+  transform: translateY(var(--borde));
+  box-shadow:
+    0 calc(var(--borde) * -1) 0 var(--violeta-oscuro),
+    calc(var(--borde) * -1) 0 0 var(--violeta-oscuro),
+    var(--borde) 0 0 var(--violeta-oscuro),
+    0 var(--borde) 0 var(--violeta-oscuro),
+    inset 0 2px 0 rgba(255, 255, 255, .25),
+    inset 0 -3px 0 rgba(0, 0, 0, .3);
+}
+
+@media (hover: hover) {
+  .btn-pixel:hover { filter: brightness(1.08); }
+}
+
+/* variantes de color */
+.btn-pixel.amarillo { background: var(--amarillo); }
+.btn-pixel.rojo    { background: var(--rojo); color: var(--blanco); }
+.btn-pixel.violeta { background: var(--violeta); color: var(--blanco); }
+
+.btn-pixel:disabled,
+.btn-pixel[aria-disabled='true'] { filter: saturate(.35) brightness(.75); }
+
+/* ---------- Menú principal tipo RPG ---------- */
+#titulo-menu { margin: 4px 0 24px; }
+
+.menu-rpg { display: grid; gap: 14px; width: 100%; }
+
+.btn-menu {
+  width: 100%;
+  font-family: var(--fuente-pixel);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--blanco);
+  background: var(--violeta);
+  padding: 15px 14px 17px;
+  text-align: center;
+  box-shadow:
+    0 calc(var(--borde) * -1) 0 var(--violeta-oscuro),
+    calc(var(--borde) * -1) 0 0 var(--violeta-oscuro),
+    var(--borde) 0 0 var(--violeta-oscuro),
+    0 calc(var(--borde) * 2) 0 var(--violeta-oscuro),
+    inset 0 3px 0 rgba(255, 255, 255, .18);
+  transition: transform .06s steps(2), box-shadow .06s steps(2);
+}
+
+.btn-menu::before { content: '>'; color: var(--amarillo); margin-right: 9px; }
+
+.btn-menu:active {
+  transform: translateY(var(--borde));
+  box-shadow:
+    0 calc(var(--borde) * -1) 0 var(--violeta-oscuro),
+    calc(var(--borde) * -1) 0 0 var(--violeta-oscuro),
+    var(--borde) 0 0 var(--violeta-oscuro),
+    0 var(--borde) 0 var(--violeta-oscuro),
+    inset 0 2px 0 rgba(255, 255, 255, .12);
+}
+
+.btn-menu.especial { background: var(--rojo); }
+
+/* ✓ en secciones ya visitadas */
+.btn-menu.visitada::after { content: ' ✓'; color: var(--amarillo); margin-left: 8px; }
+.btn-menu.especial.visitada::after { content: ' <3 ✓'; color: var(--amarillo); }
+
+/* ---------- Botón flotante de música ---------- */
+.btn-musica {
+  position: fixed;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index: 80;
+  width: 54px;
+  height: 54px;
+  padding: 0;
+  font-family: var(--fuente-pixel);
+  font-size: 20px;
+  line-height: 1;
+  color: var(--blanco);
+  background: var(--violeta);
+  box-shadow:
+    0 calc(var(--borde) * -1) 0 var(--violeta-oscuro),
+    calc(var(--borde) * -1) 0 0 var(--violeta-oscuro),
+    var(--borde) 0 0 var(--violeta-oscuro),
+    0 var(--borde) 0 var(--violeta-oscuro),
+    inset 0 3px 0 rgba(255, 255, 255, .25);
+}
+
+.btn-musica[hidden] { display: none; }   /* combinar fixed + atributo hidden */
+.btn-musica.apagada  { color: #8d7bb8; text-decoration: line-through 3px; }
+.btn-musica:active   { transform: translateY(3px); }
+
+/* parpadeo arcade */
+.parpadeo { animation: parpadear 1.15s steps(1, jump-none) infinite; }
+@keyframes parpadear { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+/* ---------- Sprite de corazón pixel (dibujado con box-shadow) ----------
+   Un "píxel" = --px. El corazón ocupa 7x6 casillas; cada sombra pinta
+   una casilla. --c = cuerpo, --c2 = brillo superior. */
+.sprite-corazon {
+  --px: 5px;
+  --c: var(--rojo);
+  --c2: var(--rosa);
+  /* la caja ocupa las 7x6 casillas reales; el dibujo va en ::before */
+  width: calc(var(--px) * 7);
+  height: calc(var(--px) * 6);
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  background: transparent;
+  filter: drop-shadow(2px 3px 0 rgba(0, 0, 0, .35));
+}
+.sprite-corazon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--px);
+  height: var(--px);
+  background: transparent;
+  box-shadow:
+    calc(var(--px) * 1) calc(var(--px) * 0) 0 0 var(--c2),
+    calc(var(--px) * 2) calc(var(--px) * 0) 0 0 var(--c2),
+    calc(var(--px) * 4) calc(var(--px) * 0) 0 0 var(--c2),
+    calc(var(--px) * 5) calc(var(--px) * 0) 0 0 var(--c2),
+    calc(var(--px) * 0) calc(var(--px) * 1) 0 0 var(--c),
+    calc(var(--px) * 1) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 2) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 3) calc(var(--px) * 1) 0 0 var(--c),
+    calc(var(--px) * 4) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 5) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 6) calc(var(--px) * 1) 0 0 var(--c),
+    calc(var(--px) * 0) calc(var(--px) * 2) 0 0 var(--c),
+    calc(var(--px) * 1) calc(var(--px) * 2) 0 0 var(--c2),
+    calc(var(--px) * 2) calc(var(--px) * 2) 0 0 var(--c2),
+    calc(var(--px) * 3) calc(var(--px) * 2) 0 0 var(--c2),
+    calc(var(--px) * 4) calc(var(--px) * 2) 0 0 var(--c2),
+    calc(var(--px) * 5) calc(var(--px) * 2) 0 0 var(--c2),
+    calc(var(--px) * 6) calc(var(--px) * 2) 0 0 var(--c),
+    calc(var(--px) * 1) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 2) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 3) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 4) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 5) calc(var(--px) * 3) 0 0 var(--c),
+    calc(var(--px) * 2) calc(var(--px) * 4) 0 0 var(--c),
+    calc(var(--px) * 3) calc(var(--px) * 4) 0 0 var(--c),
+    calc(var(--px) * 4) calc(var(--px) * 4) 0 0 var(--c),
+    calc(var(--px) * 3) calc(var(--px) * 5) 0 0 var(--c);
+}
+
+/* escalados del sprite */
+.sprite-corazon.grande {
+  --px: 18px;
+  display: block;
+  margin: 26px auto 30px;
+  animation: latido 1.4s steps(2, jump-none) infinite;
+}
+.sprite-corazon.medio { --px: 10px; }
+.sprite-corazon.mini  { --px: 4px; }
+
+@keyframes latido {
+  0%, 100% { transform: scale(1); }
+  45%      { transform: scale(1.12); }
+  70%      { transform: scale(.96); }
+}
+
+/* ---------- Pantalla de bloqueo (cuenta regresiva) ---------- */
+#pantalla-bloqueo .titulo-pixel { margin-top: 9vh; }
+
+.cuenta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin: 30px 0 8px;
+}
+
+.cuenta .medidor {
+  min-width: 76px;
+  padding: 12px 8px 10px;
+  text-align: center;
+  background: var(--violeta-oscuro);
+  box-shadow:
+    -3px 0 0 0 var(--violeta),
+    3px 0 0 0 var(--violeta),
+    0 -3px 0 0 var(--violeta),
+    0 3px 0 0 var(--violeta);
+}
+
+.cuenta .num {
+  display: block;
+  font-family: var(--fuente-pixel);
+  font-size: 27px;               /* dígitos grandes pixel */
+  color: var(--amarillo);
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, .45);
+}
+
+.cuenta .etq {
+  display: block;
+  margin-top: 7px;
+  font-family: var(--fuente-pixel);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--rosa);
+}
+
+/* ---------- Pantalla de inicio ---------- */
+#pantalla-inicio { justify-content: center; text-align: center; }
+
+#pantalla-inicio .titulo-pixel {
+  font-size: 15px;
+  color: var(--rosa);
+  text-shadow: 3px 3px 0 var(--violeta-oscuro);
+}
+
+#btn-start {
+  min-width: min(78vw, 300px);
+  padding: 16px 20px 18px;
+  font-size: 12px;
+  background: var(--rojo);
+  color: var(--blanco);
+}
+
+#pantalla-inicio .subtexto { color: var(--texto-suave); }
+
+#btn-saltar { margin-top: 14px; font-size: 10px; }
+
+/* ---------- Lightbox de fotos ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: none;
+  place-items: center;
+  padding: var(--gutter);
+  background: rgba(26, 16, 51, .94);
+}
+
+.lightbox.abierto { display: grid; }
+
+.lightbox img {
+  max-width: 100%;
+  max-height: 78vh;
+  border: 4px solid var(--blanco);
+  box-shadow:
+    0 -6px 0 var(--violeta-oscuro),
+    -6px 0 0 var(--violeta-oscuro),
+    6px 0 0 var(--violeta-oscuro),
+    0 6px 0 var(--violeta-oscuro);
+}
+
+/* marco pixel con corazón cuando la foto aún no existe */
+.lightbox-error { display: grid; place-items: center; gap: 22px; text-align: center; }
+.lightbox-error .sprite-corazon { --px: 24px; display: block; margin: 0; }
+.lightbox-error .pronto { font-family: var(--fuente-pixel); font-size: 10px; color: var(--texto-suave); }
+
+.lightbox-hint {
+  position: absolute;
+  bottom: 26px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--fuente-pixel);
+  font-size: 9px;
+  color: var(--texto-suave);
+}
+
+/* ---------- Estructura común de secciones ---------- */
+.contenido-seccion { width: 100%; }
+
+/* botón "◀ Volver" fijo arriba, vuelve al menú */
+.btn-volver {
+  position: sticky;
+  top: 8px;
+  z-index: 30;
+  display: inline-block;
+  font-family: var(--fuente-pixel);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--blanco);
+  background: var(--violeta);
+  padding: 10px 12px 11px;
+  margin: 2px 0 4px;
+  box-shadow:
+    0 -3px 0 var(--violeta-oscuro),
+    -3px 0 0 var(--violeta-oscuro),
+    3px 0 0 var(--violeta-oscuro),
+    0 6px 0 var(--violeta-oscuro);
+}
+.btn-volver:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 -3px 0 var(--violeta-oscuro),
+    -3px 0 0 var(--violeta-oscuro),
+    3px 0 0 var(--violeta-oscuro),
+    0 3px 0 var(--violeta-oscuro);
+}
+
+.vacio { width: 100%; margin: 34px auto; text-align: center; color: var(--texto-suave); font-size: 21px; }
+
+/* ---------- Sección RECUERDOS: mapa de niveles ---------- */
+.linea-tiempo {
+  position: relative;
+  width: 100%;
+  margin: 16px 0 10px;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* línea punteada vertical estilo mapa de niveles */
+.linea-tiempo::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  background: repeating-linear-gradient(180deg, var(--violeta) 0 9px, transparent 9px 15px);
+}
+
+.nivel { position: relative; }
+
+/* nodo cuadrado sobre la línea */
+.nivel::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 5px;
+  width: 12px;
+  height: 12px;
+  background: var(--amarillo);
+  box-shadow:
+    -3px 0 0 var(--fondo),
+    3px 0 0 var(--fondo),
+    0 -3px 0 var(--fondo),
+    0 3px 0 var(--fondo);
+}
+
+.nivel-etiqueta { font-family: var(--fuente-pixel); font-size: 10px; letter-spacing: 1px; color: var(--amarillo); text-transform: uppercase; }
+.nivel-fecha    { font-size: 20px; color: var(--rosa); margin-top: 5px; }
+.nivel-titulo   { font-size: 25px; color: var(--blanco); margin-top: 2px; font-weight: 400; }
+.nivel-texto    { font-size: 21px; color: var(--texto-suave); margin-top: 3px; }
+
+/* polaroid pixel */
+.polaroid {
+  display: block;
+  margin-top: 12px;
+  width: min(100%, 250px);
+  background: var(--blanco);
+  padding: 10px 10px 7px;
+  cursor: zoom-in;
+  box-shadow:
+    0 -4px 0 var(--violeta-oscuro),
+    -4px 0 0 var(--violeta-oscuro),
+    4px 0 0 var(--violeta-oscuro),
+    0 4px 0 var(--violeta-oscuro);
+}
+
+.polaroid .polaroid-ventana {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--violeta-oscuro);
+}
+.polaroid .polaroid-ventana img { width: 100%; height: 100%; object-fit: cover; }
+
+/* si la foto falla: marco pixel con corazón */
+.polaroid-ventana.polaroid-error {
+  display: grid;
+  place-items: center;
+  background: repeating-linear-gradient(45deg, var(--violeta-oscuro) 0 10px, var(--morado-suave) 10px 20px);
+}
+
+.polaroid-pie {
+  display: block;
+  margin-top: 7px;
+  text-align: center;
+  font-family: var(--fuente-pixel);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--violeta);
+}
+
+/* ---------- Sección RAZONES: cartas de juego con volteo 3D ---------- */
+.contador-cartas {
+  font-family: var(--fuente-pixel);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--amarillo);
+  text-align: center;
+  margin: 2px 0 14px;
+}
+
+.grilla-cartas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+  width: 100%;
+}
+
+.carta {
+  position: relative;
+  height: 132px;
+  perspective: 700px;
+  padding: 0;
+  background: transparent;
+}
+
+.carta-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform .5s steps(8);
+}
+
+.carta.volteada .carta-inner { transform: rotateY(180deg); }
+
+.cara {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  text-align: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* reverso: corazón pixel + número */
+.cara-reverso {
+  background-color: var(--violeta-oscuro);
+  background-image: repeating-linear-gradient(45deg, rgba(255, 95, 162, .07) 0 8px, transparent 8px 16px);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 95, 162, .35),
+    0 -3px 0 var(--violeta),
+    -3px 0 0 var(--violeta),
+    3px 0 0 var(--violeta),
+    0 3px 0 var(--violeta);
+}
+
+.cara-reverso .num { font-family: var(--fuente-pixel); font-size: 10px; color: var(--amarillo); }
+
+/* frente: la razón (texto VT323 legible) */
+.cara-frente {
+  transform: rotateY(180deg);
+  background: var(--blanco);
+  box-shadow:
+    inset 0 0 0 2px var(--rosa),
+    0 -3px 0 var(--violeta),
+    -3px 0 0 var(--violeta),
+    3px 0 0 var(--violeta),
+    0 3px 0 var(--violeta);
+}
+
+.cara-frente .razon { display: block; font-size: 19px; color: var(--tinta); line-height: 1.2; overflow: hidden; }
+
+/* ---------- Sección DISTANCIA: ruta entre corazones ---------- */
+.distancia { display: flex; flex-direction: column; width: 100%; }
+
+.distancia-caja { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
+
+.nodo-ciudad {
+  flex: 0 0 auto;
+  min-width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  text-align: center;
+  font-size: 19px;
+  line-height: 1.15;
+  color: var(--rosa);
+}
+
+.nodo-ciudad .sprite-corazon { margin: 0; }
+
+.ruta { position: relative; flex: 1 1 auto; height: 48px; }
+
+.ruta-linea {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: -2px;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, var(--rosa) 0 10px, transparent 10px 16px);
+}
+
+/* avioncito pixel dibujado con box-shadow (12x5 casillas) */
+.sprite-avion {
+  --px: 3px;
+  --c1: var(--amarillo);   /* fuselaje y nariz */
+  --c2: var(--rosa);        /* alas y cola */
+  position: absolute;
+  top: 50%;
+  left: 0;
+  margin-top: -8px;
+  width: var(--px);
+  height: var(--px);
+  background: transparent;
+  z-index: 2;
+  filter: drop-shadow(1px 2px 0 rgba(0, 0, 0, .4));
+  animation: volar 3.2s ease-in-out infinite alternate;
+  box-shadow:
+    calc(var(--px) * 10) calc(var(--px) * 0) 0 0 var(--c1),
+    calc(var(--px) * 8) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 9) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 10) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 0) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 1) calc(var(--px) * 1) 0 0 var(--c2),
+    calc(var(--px) * 0) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 1) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 2) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 3) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 4) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 5) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 6) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 7) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 8) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 9) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 10) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 11) calc(var(--px) * 2) 0 0 var(--c1),
+    calc(var(--px) * 0) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 1) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 8) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 9) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 10) calc(var(--px) * 3) 0 0 var(--c2),
+    calc(var(--px) * 10) calc(var(--px) * 4) 0 0 var(--c1);
+}
+
+@keyframes volar {
+  from { left: 0; }
+  to   { left: calc(100% - 36px); }
+}
+
+.distancia-km {
+  font-family: var(--fuente-pixel);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--amarillo);
+  text-align: center;
+  margin: 16px 0 4px;
+}
+
+.frase-distancia {
+  font-size: 23px;
+  text-align: center;
+  color: var(--blanco);
+  margin: 12px auto 0;
+  max-width: 92%;
+}
+
+/* caja del próximo encuentro */
+.encuentro {
+  margin-top: 24px;
+  width: 100%;
+  padding: 14px 10px 16px;
+  text-align: center;
+  background: var(--violeta-oscuro);
+  box-shadow:
+    0 -3px 0 var(--violeta),
+    -3px 0 0 var(--violeta),
+    3px 0 0 var(--violeta),
+    0 3px 0 var(--violeta);
+}
+
+.encuentro-etiqueta {
+  font-family: var(--fuente-pixel);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--texto-suave);
+  text-transform: uppercase;
+  margin-bottom: 9px;
+}
+
+.encuentro-valor {
+  font-family: var(--fuente-pixel);
+  font-size: 16px;
+  color: var(--amarillo);
+}
+
+/* ---------- Sección MEDIA: reproductores cassette / gameboy ---------- */
+.lista-media { display: flex; flex-direction: column; gap: 22px; width: 100%; }
+
+.player { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+
+.player-titulo { font-size: 23px; color: var(--blanco); }
+
+.casetera {
+  background: var(--violeta-oscuro);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow:
+    0 -4px 0 var(--violeta),
+    -4px 0 0 var(--violeta),
+    4px 0 0 var(--violeta),
+    0 4px 0 var(--violeta);
+}
+
+.casete {
+  position: relative;
+  height: 78px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 46px;
+  background: var(--violeta);
+  box-shadow: inset 0 0 0 3px var(--morado-suave);
+}
+
+/* bobinas: rueda dentada pixel que gira al reproducir */
+.bobina {
+  width: 34px;
+  height: 34px;
+  background: repeating-conic-gradient(var(--amarillo) 0% 25%, var(--fondo) 25% 50%);
+  animation: girar 1s steps(4) infinite;
+  animation-play-state: paused;
+}
+
+.casetera.sonando .bobina { animation-play-state: running; }
+
+@keyframes girar { to { transform: rotate(360deg); } }
+
+.etiqueta-casete {
+  position: absolute;
+  bottom: 7px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--fuente-pixel);
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: rgba(255, 244, 248, .45);
+}
+
+.fila-datos { display: flex; align-items: center; gap: 10px; }
+
+.player-tiempo {
+  font-family: var(--fuente-pixel);
+  font-size: 9px;
+  color: var(--rosa);
+  min-width: 40px;
+  text-align: right;
+}
+
+.progreso {
+  position: relative;
+  flex: 1;
+  height: 12px;
+  background: var(--fondo);
+  box-shadow: inset 0 0 0 2px var(--morado-suave);
+}
+
+.progreso-fill { position: absolute; inset: 0; width: 0%; background: var(--amarillo); }
+
+.fila-controles { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.btn-play { font-size: 10px; padding: 10px 14px 11px; }
+
+/* si el audio/video falla: el botón se reemplaza por "pronto" */
+.pronto {
+  font-family: var(--fuente-pixel);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #8d7bb8;
+  padding: 8px 2px;
+  text-transform: uppercase;
+}
+
+.player.roto .casetera,
+.player.roto .gameboy { opacity: .55; }
+
+/* consola gameboy para videos */
+.gameboy {
+  background: var(--violeta-oscuro);
+  padding: 12px 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow:
+    0 -4px 0 var(--rojo),
+    -4px 0 0 var(--rojo),
+    4px 0 0 var(--rojo),
+    0 4px 0 var(--rojo);
+}
+
+.gameboy-pantalla { background: #0e0a1f; padding: 8px; }
+.gameboy-pantalla video { width: 100%; height: auto; aspect-ratio: 4 / 3; background: #000; }
+
+/* ---------- Sección CUPONES: vales con borde troquelado ---------- */
+.lista-tickets { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+
+.ticket {
+  --paso: 15px;    /* separación entre agujeros */
+  --radio: 5px;    /* tamaño del agujero */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 14px 18px;
+  background: var(--blanco);
+  color: var(--tinta);
+  /* troquelado: semicírculos recortados arriba y abajo con máscara */
+  -webkit-mask-image:
+    radial-gradient(circle var(--radio) at calc(var(--paso) / 2) 0, transparent 98%, #000),
+    radial-gradient(circle var(--radio) at calc(var(--paso) / 2) 100%, transparent 98%, #000);
+  -webkit-mask-size: var(--paso) 100%;
+  -webkit-mask-repeat: repeat-x;
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(circle var(--radio) at calc(var(--paso) / 2) 0, transparent 98%, #000),
+    radial-gradient(circle var(--radio) at calc(var(--paso) / 2) 100%, transparent 98%, #000);
+  mask-size: var(--paso) 100%;
+  mask-repeat: repeat-x;
+  mask-composite: intersect;
+}
+
+.ticket-num {
+  font-family: var(--fuente-pixel);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--rojo);
+  text-transform: uppercase;
+}
+
+.ticket-texto { font-size: 24px; line-height: 1.15; color: var(--tinta); }
+
+.ticket .btn-canjear { align-self: flex-end; font-size: 9px; padding: 10px 13px 11px; }
+
+/* sello CANJEADO */
+.ticket-sello {
+  display: none;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-9deg);
+  font-family: var(--fuente-pixel);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--rojo);
+  border: 3px solid var(--rojo);
+  padding: 9px 10px;
+  background: rgba(255, 244, 248, .88);
+}
+
+.ticket.canjeado .ticket-sello { display: block; animation: sellar .25s steps(3); }
+.ticket.canjeado .btn-canjear { display: none; }
+
+@keyframes sellar {
+  from { transform: scale(1.7) rotate(-9deg); opacity: 0; }
+  to   { transform: translateY(-50%) rotate(-9deg) scale(1); opacity: 1; }
+}
+
+/* ---------- Sección CARTA: pastel pixel con velas ---------- */
+.carta-pastel-zona { width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+.pastel {
+  width: min(100%, 330px);
+  margin: 22px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* fila de velas encima del pastel */
+.capa-velas {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-bottom: -2px;
+}
+
+.vela {
+  position: relative;
+  flex: 0 0 auto;
+  width: 6px;
+  height: 17px;
+  background: repeating-linear-gradient(90deg, var(--blanco) 0 3px, var(--rojo) 3px 6px);
+}
+
+/* llama pixel con núcleo blanco */
+.vela .llama {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  width: 6px;
+  height: 9px;
+  margin-left: -3px;
+  background: var(--amarillo);
+  transform-origin: 50% 100%;
+  animation: mover-llama .5s steps(2, jump-none) infinite alternate;
+}
+
+.vela .llama::before {
+  content: '';
+  position: absolute;
+  left: 1px;
+  bottom: 1px;
+  width: 4px;
+  height: 4px;
+  background: #fff;
+}
+
+.vela:nth-child(2n) .llama { animation-duration: .62s; animation-delay: .14s; }
+.vela:nth-child(3n) .llama { animation-duration: .4s; }
+.vela:nth-child(5n) .llama { animation-delay: .28s; }
+
+@keyframes mover-llama {
+  from { transform: scaleY(1); }
+  to   { transform: scaleY(.62) translateY(1px); }
+}
+
+/* vela apagada: la llama desaparece y sale un "humito" */
+.vela.apagada .llama { display: none; }
+
+.vela.apagada::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: -7px;
+  width: 4px;
+  height: 7px;
+  background: rgba(199, 195, 222, .6);
+  animation: humo .9s steps(4) forwards;
+}
+
+@keyframes humo {
+  from { opacity: .9; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-12px); }
+}
+
+/* pisos del pastel */
+.pastel-piso { position: relative; }
+
+.piso-arriba { width: 70%;  height: 30px; background: var(--rosa); }
+.piso-medio  { width: 86%;  height: 34px; background: var(--violeta); }
+
+.piso-abajo {
+  width: 100%;
+  height: 52px;
+  background-color: var(--rojo);
+  background-image:
+    radial-gradient(var(--blanco) 2px, transparent 2.6px),
+    radial-gradient(var(--amarillo) 2px, transparent 2.6px);
+  background-size: 26px 22px, 18px 14px;
+  background-position: 3px 8px, 10px 16px;
+}
+
+/* glaseado blanco con goteo pixel en cada piso */
+.piso-arriba::before,
+.piso-medio::before,
+.piso-abajo::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: var(--blanco);
+  z-index: 1;
+}
+
+/* gotas: sombras blancas con alturas irregulares */
+.piso-arriba::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 8px;
+  height: 5px;
+  background: var(--blanco);
+  box-shadow:
+    24px 3px 0 var(--blanco), 48px 7px 0 var(--blanco),
+    72px 1px 0 var(--blanco), 96px 5px 0 var(--blanco),
+    120px 2px 0 var(--blanco), 144px 7px 0 var(--blanco),
+    168px 3px 0 var(--blanco), 192px 6px 0 var(--blanco),
+    216px 1px 0 var(--blanco);
+}
+
+.piso-medio::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 8px;
+  height: 5px;
+  background: var(--blanco);
+  box-shadow:
+    26px 4px 0 var(--blanco), 52px 1px 0 var(--blanco),
+    78px 6px 0 var(--blanco), 104px 3px 0 var(--blanco),
+    130px 7px 0 var(--blanco), 156px 2px 0 var(--blanco),
+    182px 5px 0 var(--blanco), 208px 1px 0 var(--blanco),
+    234px 4px 0 var(--blanco);
+}
+
+.piso-abajo::after {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 0;
+  width: 8px;
+  height: 5px;
+  background: var(--blanco);
+  box-shadow:
+    28px 5px 0 var(--blanco), 56px 1px 0 var(--blanco),
+    84px 6px 0 var(--blanco), 112px 3px 0 var(--blanco),
+    140px 7px 0 var(--blanco), 168px 2px 0 var(--blanco),
+    196px 5px 0 var(--blanco), 224px 1px 0 var(--blanco),
+    252px 6px 0 var(--blanco), 280px 3px 0 var(--blanco),
+    308px 5px 0 var(--blanco);
+}
+
+/* plato */
+.pastel-plato {
+  width: calc(100% + 26px);
+  height: 13px;
+  background: var(--violeta-oscuro);
+  box-shadow: 0 -3px 0 var(--violeta);
+}
+
+.carta-instruccion {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 22px;
+  color: var(--blanco);
+}
+
+.soplar-zona {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+/* medidor del micrófono */
+.medidor-mic {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  height: 18px;
+  margin-top: 14px;
+  background: var(--violeta-oscuro);
+  box-shadow: inset 0 0 0 2px var(--violeta);
+}
+
+.medidor-fill {
+  height: 100%;
+  width: 0%;
+  background: repeating-linear-gradient(90deg, var(--amarillo) 0 8px, var(--rojo) 8px 16px);
+  transition: width .06s linear;
+}
+
+/* marca del umbral de soplido */
+.medidor-mic::after {
+  content: '';
+  position: absolute;
+  left: 54%;
+  top: -4px;
+  bottom: -4px;
+  width: 4px;
+  background: rgba(255, 46, 99, .75);
+}
+
+/* ---------- La carta (aparece tras soplar) ---------- */
+.carta-final {
+  margin-top: 24px;
+  width: 100%;
+  background: var(--blanco);
+  padding: 18px 15px 20px;
+  position: relative;
+  box-shadow:
+    0 -4px 0 var(--violeta-oscuro),
+    -4px 0 0 var(--violeta-oscuro),
+    4px 0 0 var(--violeta-oscuro),
+    0 4px 0 var(--violeta-oscuro);
+}
+
+.carta-final.mostrada { animation: aparecer .5s steps(6); }
+
+.carta-titulo {
+  font-family: var(--fuente-pixel);
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--rojo);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.carta-cuerpo p { font-size: 22px; color: var(--tinta); line-height: 1.4; margin-bottom: 8px; }
+
+.carta-cuerpo .firma { text-align: right; color: var(--rojo); font-size: 23px; margin-top: 10px; }
+
+/* cursor de la máquina de escribir */
+.cursor-escritura {
+  display: inline-block;
+  width: 9px;
+  height: 19px;
+  margin-left: 2px;
+  vertical-align: -3px;
+  background: var(--violeta);
+}
+
+#btn-reencender { display: block; margin: 22px auto 0; font-size: 10px; }
+
+/* ---------- Confeti pixel (lo genera app.js) ---------- */
+.confeti {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.confeti .pieza {
+  position: absolute;
+  top: -14px;
+  width: 8px;
+  height: 8px;
+  animation-name: caer;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+.confeti .pieza.larga { width: 5px; height: 14px; }
+
+@keyframes caer {
+  from { transform: translate(0, 0) rotate(0deg); }
+  to   { transform: translate(var(--deriva, 0px), 104vh) rotate(var(--giro, 180deg)); }
+}
+
+/* ---------- Avisos (toast pixel) ---------- */
+.aviso {
+  position: fixed;
+  left: 50%;
+  bottom: 84px;
+  z-index: 95;
+  max-width: calc(100vw - 32px);
+  padding: 11px 13px;
+  font-family: var(--fuente-pixel);
+  font-size: 9px;
+  line-height: 1.6;
+  text-align: center;
+  color: var(--blanco);
+  background: var(--violeta);
+  box-shadow:
+    0 -3px 0 var(--violeta-oscuro),
+    -3px 0 0 var(--violeta-oscuro),
+    3px 0 0 var(--violeta-oscuro),
+    0 3px 0 var(--violeta-oscuro);
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  pointer-events: none;
+  transition: opacity .2s steps(3), transform .2s steps(3);
+}
+
+.aviso.visible { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Escritorio: contenido centrado (max-width ya en .pantalla) ---------- */
+@media (min-width: 700px) {
+  body { font-size: 24px; }
+
+  .titulo-pixel { font-size: 17px; }
+  #pantalla-inicio .titulo-pixel { font-size: 19px; }
+  .titulo-seccion { font-size: 14px; }
+
+  .btn-pixel { font-size: 12px; }
+  .btn-menu { font-size: 12px; }
+
+  .cuenta .num { font-size: 34px; }
+  .cuenta .medidor { min-width: 88px; }
+
+  .grilla-cartas { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .carta { height: 150px; }
+  .cara-frente .razon { font-size: 21px; }
+
+  .nivel-titulo { font-size: 27px; }
+  .polaroid { width: min(100%, 300px); }
+}
+
+/* ---------- Accesibilidad: respetar prefers-reduced-motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* atributo hidden siempre gana sobre display de los componentes */
+[hidden] { display: none !important; }
+
+/* ---------- Galería de fotos (sección sec-media sin audios) ---------- */
+.galeria {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-top: 10px;
+}
+.galeria .galeria-item { width: 100%; margin: 0; }
+.galeria .galeria-item:nth-child(odd)  { transform: rotate(-1.5deg); }
+.galeria .galeria-item:nth-child(even) { transform: rotate(1.5deg); }
+.galeria .polaroid-ventana { aspect-ratio: 1 / 1; }
+.galeria .polaroid-ventana img { width: 100%; height: 100%; object-fit: cover; }
+.galeria .polaroid-pie { font-size: 8px; line-height: 1.4; padding-top: 6px; }
+
+/* botón enlace a la canción (debajo del menú) */
+.btn-cancion {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  margin-top: 6px;
+  background: var(--amarillo);
+  color: var(--fondo, #1a1033);
+}
+
+/* nivel con varias fotos: lado a lado, un poco giradas */
+.nivel-fotos.varias { display: flex; gap: 12px; flex-wrap: wrap; }
+.nivel-fotos.varias .polaroid { width: calc(50% - 6px); }
+.nivel-fotos.varias .polaroid:nth-child(odd)  { transform: rotate(-2deg); }
+.nivel-fotos.varias .polaroid:nth-child(even) { transform: rotate(2deg); }
+
+/* ---------- Nuestras canciones ---------- */
+.canciones-intro { text-align: center; font-size: 21px; color: var(--blanco); margin: 6px 0 16px; }
+.lista-canciones { display: flex; flex-direction: column; gap: 18px; width: 100%; }
+.cancion {
+  background: var(--violeta-oscuro);
+  padding: 14px 14px 16px;
+  box-shadow:
+    0 -4px 0 var(--violeta),
+    -4px 0 0 var(--violeta),
+    4px 0 0 var(--violeta),
+    0 4px 0 var(--violeta);
+}
+.cancion-num { font-family: var(--fuente-pixel); font-size: 8px; color: var(--amarillo); letter-spacing: 1px; text-transform: uppercase; }
+.cancion-titulo { font-family: var(--fuente-pixel); font-size: 12px; line-height: 1.5; color: var(--rosa); margin: 8px 0 2px; }
+.cancion-artista { font-size: 19px; color: var(--texto-suave, #c9b8ff); }
+.cancion-razon { font-size: 21px; line-height: 1.3; color: var(--blanco); margin: 10px 0 12px; }
+.cancion-embed { display: block; width: 100%; border: 0; border-radius: 12px; }
+.btn-spotify { display: block; text-align: center; text-decoration: none; font-size: 10px; background: #1db954; color: #0b1a10; }
+.cancion-video { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #000; box-shadow: 0 0 0 3px var(--rosa); }
+.cancion-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
